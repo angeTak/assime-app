@@ -298,71 +298,42 @@
             progressFill.style.width = '0%';
             progressText.textContent = 'Téléchargement en cours... 0%';
             
-            // URL du fichier
+            // URL du fichier Google Drive
             const url = 'https://drive.google.com/uc?export=download&id=1THpO-BeDMfDzRMWnk6Jn8TzxHaFZhx2r';
             
-            // Utiliser fetch pour télécharger avec suivi de progression
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erreur de téléchargement');
-                    }
-                    
-                    const contentLength = response.headers.get('Content-Length');
-                    const total = parseInt(contentLength, 10);
-                    let loaded = 0;
-                    
-                    const reader = response.body.getReader();
-                    
-                    return new ReadableStream({
-                        start(controller) {
-                            function pump() {
-                                return reader.read().then(({ done, value }) => {
-                                    if (done) {
-                                        controller.close();
-                                        progressText.textContent = 'Téléchargement terminé !';
-                                        setTimeout(() => {
-                                            progressContainer.style.display = 'none';
-                                        }, 2000);
-                                        return;
-                                    }
-                                    
-                                    loaded += value.byteLength;
-                                    const progress = total > 0 ? (loaded / total) * 100 : 0;
-                                    
-                                    progressFill.style.width = progress + '%';
-                                    progressText.textContent = `Téléchargement en cours... ${Math.round(progress)}%`;
-                                    
-                                    controller.enqueue(value);
-                                    return pump();
-                                });
-                            }
-                        }
-                    });
-                })
-                .then(stream => {
-                    const response = new Response(stream);
-                    return response.blob();
-                })
-                .then(blob => {
-                    const downloadUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = downloadUrl;
-                    a.download = 'assimevendeur.apk';
-                    a.rel = 'noopener noreferrer';
-                    a.target = '_blank';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(downloadUrl);
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    progressText.textContent = 'Erreur de téléchargement';
-                    setTimeout(() => {
-                        progressContainer.style.display = 'none';
-                    }, 3000);
-                });
+            // Créer un lien de téléchargement direct
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'assimevendeur.apk';
+            link.rel = 'noopener noreferrer';
+            link.target = '_blank';
+            
+            // Simuler la progression pour Google Drive
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                if (progress < 90) {
+                    progress += Math.random() * 15;
+                    if (progress > 90) progress = 90;
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = `Téléchargement en cours... ${Math.round(progress)}%`;
+                }
+            }, 500);
+            
+            // Démarrer le téléchargement
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Simuler la fin du téléchargement après 3 secondes
+            setTimeout(() => {
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Téléchargement terminé !';
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 2000);
+            }, 3000);
         }
     </script>
 </body>
