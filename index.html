@@ -168,6 +168,15 @@
         </div>
         
         <div class="instructions">
+            <h3>📱 Téléchargement direct</h3>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <p style="text-align: center; margin: 0;">
+                    <strong>Cliquez sur le bouton ci-dessus pour télécharger l'APK</strong><br>
+                    <small>Fichier : assimevendeur.apk (69.3 MB)</small>
+                </p>
+            </div>
+            
             <h3>Installation en 4 étapes</h3>
             
             <div class="step">
@@ -195,9 +204,10 @@
     <script>
         function downloadAPK() {
             const link = document.createElement('a');
-            link.href = 'https://raw.githubusercontent.com/angeTak/assime-app/main/apk/assimevendeur.apk';
+            link.href = 'https://drive.google.com/uc?export=download&id=VOTRE_ID_FICHIER';
             link.download = 'assimevendeur.apk';
             link.rel = 'noopener noreferrer';
+            link.target = '_blank';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
