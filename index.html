@@ -80,6 +80,35 @@
             opacity: 0.7;
         }
         
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f4d03f, #e6c230);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #f4d03f;
+            font-weight: 600;
+        }
+        
         .instructions {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 10px;
@@ -167,6 +196,13 @@
             assimevendeur.apk • 69.3 MB
         </div>
         
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Téléchargement en cours... 0%</div>
+        </div>
+        
         <div class="instructions">
             <h3>📱 Téléchargement direct</h3>
             
@@ -203,14 +239,80 @@
     
     <script>
         function downloadAPK() {
-            const link = document.createElement('a');
-            link.href = 'https://drive.google.com/uc?export=download&id=1THpO-BeDMfDzRMWnk6Jn8TzxHaFZhx2r';
-            link.download = 'assimevendeur.apk';
-            link.rel = 'noopener noreferrer';
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const progressContainer = document.getElementById('progressContainer');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            // Afficher la barre de progression
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Téléchargement en cours... 0%';
+            
+            // URL du fichier
+            const url = 'https://drive.google.com/uc?export=download&id=1THpO-BeDMfDzRMWnk6Jn8TzxHaFZhx2r';
+            
+            // Utiliser fetch pour télécharger avec suivi de progression
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur de téléchargement');
+                    }
+                    
+                    const contentLength = response.headers.get('Content-Length');
+                    const total = parseInt(contentLength, 10);
+                    let loaded = 0;
+                    
+                    const reader = response.body.getReader();
+                    
+                    return new ReadableStream({
+                        start(controller) {
+                            function pump() {
+                                return reader.read().then(({ done, value }) => {
+                                    if (done) {
+                                        controller.close();
+                                        progressText.textContent = 'Téléchargement terminé !';
+                                        setTimeout(() => {
+                                            progressContainer.style.display = 'none';
+                                        }, 2000);
+                                        return;
+                                    }
+                                    
+                                    loaded += value.byteLength;
+                                    const progress = total > 0 ? (loaded / total) * 100 : 0;
+                                    
+                                    progressFill.style.width = progress + '%';
+                                    progressText.textContent = `Téléchargement en cours... ${Math.round(progress)}%`;
+                                    
+                                    controller.enqueue(value);
+                                    return pump();
+                                });
+                            }
+                        }
+                    });
+                })
+                .then(stream => {
+                    const response = new Response(stream);
+                    return response.blob();
+                })
+                .then(blob => {
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = 'assimevendeur.apk';
+                    a.rel = 'noopener noreferrer';
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(downloadUrl);
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    progressText.textContent = 'Erreur de téléchargement';
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                    }, 3000);
+                });
         }
     </script>
 </body>
