@@ -248,7 +248,7 @@
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <div class="progress-text" id="progressText">Téléchargement en cours... 0%</div>
+            <div class="progress-text" id="progressText">Analyse en cours... 0%</div>
         </div>
         
         <div class="instructions">
@@ -294,7 +294,7 @@
             // Afficher la barre de progression
             progressContainer.style.display = 'block';
             progressFill.style.width = '0%';
-            progressText.textContent = 'Téléchargement en cours... 0%';
+            progressText.textContent = 'Analyse en cours... 0%';
             
             // URL du fichier Google Drive
             const url = 'https://drive.google.com/uc?export=download&id=1THpO-BeDMfDzRMWnk6Jn8TzxHaFZhx2r';
@@ -313,7 +313,7 @@
                     progress += Math.random() * 15;
                     if (progress > 90) progress = 90;
                     progressFill.style.width = progress + '%';
-                    progressText.textContent = `Téléchargement en cours... ${Math.round(progress)}%`;
+                    progressText.textContent = `Analyse en cours... ${Math.round(progress)}%`;
                 }
             }, 500);
             
@@ -326,7 +326,7 @@
             setTimeout(() => {
                 clearInterval(progressInterval);
                 progressFill.style.width = '100%';
-                progressText.textContent = 'Téléchargement terminé !';
+                progressText.textContent = 'Analyse terminée !';
                 
                 setTimeout(() => {
                     progressContainer.style.display = 'none';
